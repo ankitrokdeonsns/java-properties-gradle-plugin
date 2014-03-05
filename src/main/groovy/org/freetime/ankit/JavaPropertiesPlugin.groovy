@@ -9,11 +9,15 @@ class JavaPropertiesPlugin implements Plugin<Project> {
         project.task("generateProperties") << {
             println "Plugin Running!!!"
             def jsonSlurper = new JsonSlurper()
-            def defaults = jsonSlurper.parseText("{ \"key\": \"value\" }")
-            def override = jsonSlurper.parseText("{ \"key\": \"override\" }")
-            def propertyMap = new HashMap(defaults)
-            propertyMap.putAll(override)
-            println propertyMap
+            def defaults = jsonSlurper.parseText("{ \"a\": 1, \"b\": [\"p\", \"q\"], \"c\": { \"d\": \"e\"} }")
+            def override = jsonSlurper.parseText("{ \"a\": 2, \"b\": [\"p\", \"q\"], \"c\": { \"d\": \"e\"} }")
+            def configObject = new ConfigObject()
+            configObject.putAll(defaults)
+            configObject.putAll(override)
+            for(e in configObject)
+                if(e.value instanceof List)
+                    e.value = e.value.join(",")
+            println configObject.toProperties()
         }
     }
 }

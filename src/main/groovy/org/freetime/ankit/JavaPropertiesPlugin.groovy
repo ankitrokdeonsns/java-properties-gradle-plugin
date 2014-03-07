@@ -18,6 +18,8 @@ class JavaPropertiesPlugin implements Plugin<Project> {
             for(e in configObject)
                 if(e.value instanceof List)
                     e.value = e.value.join(",")
+            File propertyFile = new File("application.properties")
+            configObject.toProperties().store(propertyFile.newWriter(), null)
             println configObject.toProperties()
         }
     }

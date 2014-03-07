@@ -9,18 +9,25 @@ class JavaPropertiesPlugin implements Plugin<Project> {
         project.task("generateProperties") << {
             println "Plugin Running!!!"
             def jsonSlurper = new JsonSlurper()
-            def defaults = jsonSlurper.parse(new FileReader("${project.projectDir}/conf/data-bags/application/default.json"))
-            def env = project.properties["env"] ?: "default"
-            def override = jsonSlurper.parse(new FileReader("${project.projectDir}/conf/data-bags/application/${env}.json"))
-            def configObject = new ConfigObject()
-            configObject.putAll(defaults)
-            configObject.putAll(override)
-            for(e in configObject)
-                if(e.value instanceof List)
-                    e.value = e.value.join(",")
-            File propertyFile = new File("application.properties")
-            configObject.toProperties().store(propertyFile.newWriter(), null)
-            println configObject.toProperties()
+            def dataBagDir = new File("${project.projectDir}/conf/data-bags")
+            dataBagDir.eachFile {
+                if(!it.isFile()) {
+                    def defaults = jsonSlurper.parse(new FileReader("${it.canonicalPath}/default.json"))
+                    def env = project.properties["env"] ?: "default"
+                    def override = jsonSlurper.parse(new FileReader("${it.canonicalPath}/${env}.json"))
+                    def configObject = new ConfigObject()
+                    configObject.putAll(defaults)
+                    configObject.putAll(override)
+                    for(e in configObject)
+                        if(e.value instanceof List)
+                            e.value = e.value.join(",")
+                    def propertyFileDir = "${project.projectDir}/src/main/resources"
+                    new File(propertyFileDir).mkdirs()
+                    File propertyFile = new File("${propertyFileDir}/${it.name}.properties")
+                    configObject.toProperties().store(propertyFile.newWriter(), null)
+                    println configObject.toProperties()
+                }
+            }
         }
     }
 }

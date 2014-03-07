@@ -9,8 +9,9 @@ class JavaPropertiesPlugin implements Plugin<Project> {
         project.task("generateProperties") << {
             println "Plugin Running!!!"
             def jsonSlurper = new JsonSlurper()
-            def defaults = jsonSlurper.parseText("{ \"a\": 1, \"b\": [\"p\", \"q\"], \"c\": { \"d\": \"e\"} }")
-            def override = jsonSlurper.parseText("{ \"a\": 2, \"b\": [\"p\", \"q\"], \"c\": { \"d\": \"e\"} }")
+            def defaults = jsonSlurper.parse(new FileReader("${project.projectDir}/conf/data-bags/application/default.json"))
+            def env = project.properties["env"] ?: "default"
+            def override = jsonSlurper.parse(new FileReader("${project.projectDir}/conf/data-bags/application/${env}.json"))
             def configObject = new ConfigObject()
             configObject.putAll(defaults)
             configObject.putAll(override)

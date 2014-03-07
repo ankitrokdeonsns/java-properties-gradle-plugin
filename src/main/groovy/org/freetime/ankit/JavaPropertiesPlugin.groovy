@@ -6,26 +6,29 @@ import groovy.json.JsonSlurper
 
 class JavaPropertiesPlugin implements Plugin<Project> {
     void apply(Project project){
+        project.extensions.create("javaproperties", JavaPropertiesPluginConvention, project)
+
         project.task("generateProperties") << {
-            println "Plugin Running!!!"
-            def jsonSlurper = new JsonSlurper()
-            def dataBagDir = new File("${project.projectDir}/conf/data-bags")
+            def dataBagDir = new File("${project.javaproperties.dataBagDir}")
+
             dataBagDir.eachFile {
                 if(!it.isFile()) {
+                    def jsonSlurper = new JsonSlurper()
                     def defaults = jsonSlurper.parse(new FileReader("${it.canonicalPath}/default.json"))
                     def env = project.properties["env"] ?: "default"
-                    def override = jsonSlurper.parse(new FileReader("${it.canonicalPath}/${env}.json"))
+                    def overrides = jsonSlurper.parse(new FileReader("${it.canonicalPath}/${env}.json"))
+
                     def configObject = new ConfigObject()
                     configObject.putAll(defaults)
-                    configObject.putAll(override)
+                    configObject.putAll(overrides)
                     for(e in configObject)
                         if(e.value instanceof List)
                             e.value = e.value.join(",")
-                    def propertyFileDir = "${project.projectDir}/src/main/resources"
+
+                    def propertyFileDir = project.javaproperties.propertyFileDir
                     new File(propertyFileDir).mkdirs()
                     File propertyFile = new File("${propertyFileDir}/${it.name}.properties")
                     configObject.toProperties().store(propertyFile.newWriter(), null)
-                    println configObject.toProperties()
                 }
             }
         }

@@ -1,6 +1,6 @@
 apply plugin: "groovy"
 
-group = "org.freetime.ankit"
+group = "io.github.ankitrokdeonsns"
 version = "0.0.1"
 
 dependencies {

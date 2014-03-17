@@ -1,4 +1,4 @@
-package org.freetime.ankit
+package io.github.ankitrokdeonsns
 
 import org.gradle.api.Project
 

@@ -1,5 +1,8 @@
 apply plugin: "groovy"
 
+group = "org.freetime.ankit"
+version = "0.0.1"
+
 dependencies {
     compile gradleApi()
     compile localGroovy()

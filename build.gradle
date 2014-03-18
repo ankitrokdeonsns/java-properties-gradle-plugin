@@ -3,7 +3,45 @@ apply plugin: "groovy"
 group = "io.github.ankitrokdeonsns"
 version = "0.0.1"
 
+buildscript {
+    repositories {
+        maven { url "http://jcenter.bintray.com" }
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3"
+    }
+}
+apply plugin: "bintray"
+apply plugin: "maven-publish"
+
 dependencies {
     compile gradleApi()
     compile localGroovy()
+}
+
+artifacts {
+    archives jar
+}
+
+publishing {
+    publications {
+        groovyMaven(MavenPublication){
+            from components.java
+        }
+    }
+}
+
+bintray {
+    user = getPropertyOrUseDefault("bintrayUser", "fake_user")
+    key = getPropertyOrUseDefault("bintrayKey", "fake_key")
+    publications = ["groovyMaven"]
+    pkg {
+        repo = "maven"
+        name = "java-properties-gradle-plugin"
+        licenses = ["MIT"]
+    }
+}
+
+String getPropertyOrUseDefault(String propertyName, String defaultValue) {
+    hasProperty(propertyName) ? getProperty(propertyName) : defaultValue
 }
